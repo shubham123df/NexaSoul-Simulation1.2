@@ -184,29 +184,39 @@ function ArenaIsland({ color, accent }: { color: string; accent: string }) {
   );
 }
 
-function NetworkIsland({ color, accent }: { color: string; accent: string }) {
-  const nodes = useMemo(() => {
-    const arr: [number, number, number][] = [];
-    for (let i = 0; i < 10; i++) {
-      const angle = (i / 10) * Math.PI * 2;
-      const r = 0.8 + Math.random() * 0.6;
-      const y = Math.random() * 1;
-      arr.push([Math.cos(angle) * r, y, Math.sin(angle) * r]);
-    }
-    return arr;
-  }, []);
+function HostingIsland({ color, accent }: { color: string; accent: string }) {
   return (
     <group>
       <mesh position={[0, -0.2, 0]}>
-        <sphereGeometry args={[1.4, 16, 16]} />
-        <meshStandardMaterial color={color} emissive={color} emissiveIntensity={0.2} transparent opacity={0.15} wireframe />
+        <cylinderGeometry args={[1.45, 1.6, 0.12, 10]} />
+        <meshStandardMaterial color={color} emissive={color} emissiveIntensity={0.35} roughness={0.45} metalness={0.7} />
       </mesh>
-      {nodes.map((n, i) => (
-        <mesh key={i} position={n}>
-          <icosahedronGeometry args={[0.12, 0]} />
-          <meshStandardMaterial color={accent} emissive={accent} emissiveIntensity={2} />
+
+      <mesh position={[0, 0.35, 0]}>
+        <boxGeometry args={[1.15, 1.0, 0.55]} />
+        <meshStandardMaterial color={accent} emissive={accent} emissiveIntensity={1.1} roughness={0.25} metalness={0.8} />
+      </mesh>
+
+      {[ -0.45, 0, 0.45 ].map((x, i) => (
+        <mesh key={`rack-${i}`} position={[x, 0.4, 0]}>
+          <boxGeometry args={[0.16, 0.55, 0.26]} />
+          <meshStandardMaterial color={accent} emissive={accent} emissiveIntensity={1.4} />
         </mesh>
       ))}
+
+      <mesh position={[0, 0.95, 0]} rotation={[Math.PI / 2, 0, 0]}>
+        <torusGeometry args={[0.8, 0.04, 8, 24]} />
+        <meshStandardMaterial color={accent} emissive={accent} emissiveIntensity={1.6} />
+      </mesh>
+
+      <mesh position={[0.55, 0.95, 0]}>
+        <sphereGeometry args={[0.12, 12, 12]} />
+        <meshStandardMaterial color={accent} emissive={accent} emissiveIntensity={1.8} />
+      </mesh>
+      <mesh position={[-0.55, 0.95, 0]}>
+        <sphereGeometry args={[0.12, 12, 12]} />
+        <meshStandardMaterial color={accent} emissive={accent} emissiveIntensity={1.8} />
+      </mesh>
     </group>
   );
 }
@@ -266,7 +276,7 @@ const THEME_COMPONENTS: Record<string, React.FC<{ color: string; accent: string 
   frame: FrameIsland,
   tower: TowerIsland,
   arena: ArenaIsland,
-  network: NetworkIsland,
+  network: HostingIsland,
   dome: DomeIsland,
   skyline: SkylineIsland,
 };
