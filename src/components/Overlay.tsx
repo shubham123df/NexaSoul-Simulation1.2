@@ -206,7 +206,7 @@ export default function Overlay({ phase, currentStage, unlockedCount, progress, 
           <AnimatePresence mode="wait">
             <motion.div
               key={currentStage}
-              className="absolute bottom-6 left-5 md:bottom-10 md:left-10 max-w-xs"
+              className="absolute bottom-4 left-3 right-3 w-auto max-w-sm sm:left-5 sm:right-auto sm:bottom-6 md:bottom-10 md:left-10 md:max-w-xs"
               initial={{ opacity: 0, x: -24, y: 16 }}
               animate={{ opacity: 1, x: 0, y: 0 }}
               exit={{ opacity: 0, x: -24, y: -16 }}
