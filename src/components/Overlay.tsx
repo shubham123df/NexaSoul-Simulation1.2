@@ -101,36 +101,6 @@ export default function Overlay({ phase, currentStage, unlockedCount, progress, 
 
       {/* Level-up flash overlay removed */}
 
-      {/* Live visitor counter */}
-           <motion.div
-        className="absolute top-1/2 -translate-y-1/2 left-5 md:left-10 pointer-events-none"
-        initial={{ opacity: 0, x: -20 }}
-        animate={{ opacity: phase === 'journey' ? 1 : 0 }}
-        transition={{ duration: 0.8, delay: 0.4 }}
-      >
-        <div
-          className="flex items-center gap-2 rounded-full px-3 py-1.5"
-          style={{
-            background: 'rgba(6,13,26,0.7)',
-            border: `1px solid ${NS_LIME}30`,
-            backdropFilter: 'blur(10px)',
-          }}
-        >
-          <motion.div
-            className="w-2 h-2 rounded-full"
-            style={{ backgroundColor: NS_LIME, boxShadow: `0 0 8px ${NS_LIME}` }}
-            animate={{ scale: [1, 1.4, 1], opacity: [1, 0.5, 1] }}
-            transition={{ duration: 1.5, repeat: Infinity }}
-          />
-          <span className="text-xs font-mono font-bold" style={{ color: NS_LIME }}>
-            {visitorCount}
-          </span>
-          <span className="text-[10px] uppercase tracking-wider text-white/40">
-            exploring
-          </span>
-        </div>
-      </motion.div>
-
       {/* ── JOURNEY ────────────────────────────────────────── */}
       {phase === 'journey' && (
         <>
@@ -148,6 +118,36 @@ export default function Overlay({ phase, currentStage, unlockedCount, progress, 
               <span className="text-sm font-bold tracking-widest uppercase" style={{ color: NS_CYAN }}>NexaSoul</span>
               <span className="hidden md:inline text-xs text-white/30 tracking-wider">Learning Simulation</span>
             </div>
+
+            <motion.div
+              className="pointer-events-none z-50"
+              initial={{ opacity: 0, x: -20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.8, delay: 0.4 }}
+            >
+              <div
+                className="flex items-center gap-2 rounded-full px-3 py-1.5"
+                style={{
+                  background: 'rgba(6,13,26,0.85)',
+                  border: `1px solid ${NS_LIME}30`,
+                  backdropFilter: 'blur(12px)',
+                  boxShadow: `0 0 18px ${NS_LIME}16`,
+                }}
+              >
+                <motion.div
+                  className="w-2 h-2 rounded-full"
+                  style={{ backgroundColor: NS_LIME, boxShadow: `0 0 8px ${NS_LIME}` }}
+                  animate={{ scale: [1, 1.4, 1], opacity: [1, 0.5, 1] }}
+                  transition={{ duration: 1.5, repeat: Infinity }}
+                />
+                <span className="text-xs font-mono font-bold" style={{ color: NS_LIME }}>
+                  {visitorCount}
+                </span>
+                <span className="text-[10px] uppercase tracking-wider text-white/40">
+                  exploring
+                </span>
+              </div>
+            </motion.div>
 
             {/* Progress + XP */}
             <div className="flex items-center gap-4">
