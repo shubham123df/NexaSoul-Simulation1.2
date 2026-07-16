@@ -14,10 +14,9 @@ interface OverlayProps {
   onJoin: () => void;
   restartCountdown: number | null;
   visitorCount: number;
-  parentMode: boolean;
 }
 
-export default function Overlay({ phase, currentStage, unlockedCount, progress, onJoin, restartCountdown, visitorCount, parentMode }: OverlayProps) {
+export default function Overlay({ phase, currentStage, unlockedCount, progress, onJoin, restartCountdown, visitorCount }: OverlayProps) {
   const [introText, setIntroText] = useState(0);
   const introTexts = ['Welcome to NexaSoul', 'Your Journey Starts Here'];
 
@@ -37,15 +36,6 @@ export default function Overlay({ phase, currentStage, unlockedCount, progress, 
   const activeMission = useMemo(() => stage?.missions?.[Math.min(currentStage, stage.missions.length - 1)] ?? stage?.missions?.[0], [stage, currentStage]);
   const parentProgress = useMemo(() => Math.min(Math.floor((unlockedCount / STAGES.length) * PARENT_FLOW.length), PARENT_FLOW.length - 1), [unlockedCount]);
   const yearIndex = useMemo(() => Math.min(Math.floor((unlockedCount - 1) / 2), YEAR_PROGRESSIONS.length - 1), [unlockedCount]);
-  const parentSteps = useMemo(() => [
-    { label: 'Student joins', color: NS_CYAN },
-    { label: 'Learns skills', color: NS_LIME },
-    { label: 'Builds projects', color: '#44DDFF' },
-    { label: 'Works in teams', color: '#9ED840' },
-    { label: 'Wins hackathons', color: '#FF7A5A' },
-    { label: 'Builds portfolio', color: '#FFD700' },
-    { label: 'Gets internship', color: '#FFFFFF' },
-  ], []);
 
   return (
     <div className="pointer-events-none fixed inset-0 z-10 select-none">
@@ -144,64 +134,6 @@ export default function Overlay({ phase, currentStage, unlockedCount, progress, 
       {/* ── JOURNEY ────────────────────────────────────────── */}
       {phase === 'journey' && (
         <>
-          {parentMode && (
-            <motion.div
-              className="absolute inset-0 flex items-center justify-center px-6"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              transition={{ duration: 0.8 }}
-            >
-              <div
-                className="w-full max-w-5xl rounded-[32px] border px-8 py-8 md:px-14 md:py-12"
-                style={{
-                  background: 'rgba(6,13,26,0.75)',
-                  borderColor: `${NS_CYAN}35`,
-                  boxShadow: `0 0 50px ${NS_CYAN}20`,
-                  backdropFilter: 'blur(22px)',
-                }}
-              >
-                <motion.div
-                  className="text-center text-[10px] uppercase tracking-[0.45em] mb-6"
-                  style={{ color: `${NS_LIME}90` }}
-                  initial={{ y: 10, opacity: 0 }}
-                  animate={{ y: 0, opacity: 1 }}
-                  transition={{ duration: 0.6 }}
-                >
-                  Parent Mode
-                </motion.div>
-                <div className="flex flex-col md:flex-row items-center justify-between gap-3 md:gap-4">
-                  {parentSteps.map((step, index) => (
-                    <motion.div
-                      key={step.label}
-                      className="flex flex-col items-center"
-                      initial={{ opacity: 0, y: 16 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ delay: index * 0.1, duration: 0.5 }}
-                    >
-                      <div
-                        className="rounded-full border px-4 py-2 text-sm font-semibold"
-                        style={{
-                          color: step.color,
-                          borderColor: `${step.color}60`,
-                          backgroundColor: `${step.color}16`,
-                          boxShadow: `0 0 18px ${step.color}30`,
-                        }}
-                      >
-                        {step.label}
-                      </div>
-                      {index < parentSteps.length - 1 && (
-                        <div className="mt-2 mb-2 text-[10px] uppercase tracking-[0.45em]" style={{ color: 'rgba(255,255,255,0.25)' }}>
-                          ↓
-                        </div>
-                      )}
-                    </motion.div>
-                  ))}
-                </div>
-              </div>
-            </motion.div>
-          )}
-
           {/* Top bar */}
           <motion.div
             className="absolute top-0 left-0 right-0 flex items-center justify-between px-5 md:px-10 py-4"

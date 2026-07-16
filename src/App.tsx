@@ -25,10 +25,8 @@ export default function App() {
   const [progress, setProgress] = useState(0);
   const [showQR, setShowQR] = useState(false);
   const [restartCountdown, setRestartCountdown] = useState<number | null>(null);
-  const [parentMode, setParentMode] = useState(false);
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const countdownRef = useRef<ReturnType<typeof setInterval> | null>(null);
-  const idleTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const tapRef = useRef<TapData | null>(null);
   const [visitorCount, setVisitorCount] = useState(0);
   const [displayCount, setDisplayCount] = useState(0);
@@ -50,19 +48,12 @@ export default function App() {
     return () => clearTimeout(t);
   }, [displayCount, visitorCount]);
 
-  const resetIdleTimer = useCallback(() => {
-    if (idleTimerRef.current) clearTimeout(idleTimerRef.current);
-    setParentMode(false);
-    idleTimerRef.current = setTimeout(() => setParentMode(true), 7000);
-  }, []);
-
   // Handle taps/clicks on the canvas for touch-reactive ripple + orb glow
   const handleCanvasTap = useCallback((e: React.PointerEvent) => {
     const x = (e.clientX / window.innerWidth) * 2 - 1;
     const y = -(e.clientY / window.innerHeight) * 2 + 1;
     tapRef.current = { x, y, time: performance.now() };
-    resetIdleTimer();
-  }, [resetIdleTimer]);
+  }, []);
 
   const doRestart = useCallback(() => {
     setShowQR(false);
@@ -72,7 +63,6 @@ export default function App() {
     setWaveTrigger(-1);
     setProgress(0);
     setRestartCountdown(null);
-    setParentMode(false);
     if (countdownRef.current) clearInterval(countdownRef.current);
   }, []);
 
@@ -99,22 +89,8 @@ export default function App() {
   }, [phase, currentStage, advanceStage]);
 
   useEffect(() => {
-    if (phase !== 'journey') {
-      setParentMode(false);
-      if (idleTimerRef.current) clearTimeout(idleTimerRef.current);
-      return;
-    }
-
-    const handleActivity = () => resetIdleTimer();
-    const events = ['pointermove', 'pointerdown', 'keydown', 'touchstart', 'mousemove', 'click'] as const;
-    events.forEach((event) => window.addEventListener(event, handleActivity));
-    resetIdleTimer();
-
-    return () => {
-      if (idleTimerRef.current) clearTimeout(idleTimerRef.current);
-      events.forEach((event) => window.removeEventListener(event, handleActivity));
-    };
-  }, [phase, resetIdleTimer]);
+    if (phase !== 'journey') return;
+  }, [phase]);
 
   // Transition intro → journey
   useEffect(() => {
@@ -181,7 +157,6 @@ export default function App() {
         onJoin={() => setShowQR(true)}
         restartCountdown={restartCountdown}
         visitorCount={displayCount}
-        parentMode={parentMode}
       />
 
       {/* QR Code modal */}
