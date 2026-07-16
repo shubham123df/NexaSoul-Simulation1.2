@@ -106,27 +106,27 @@ export default function Overlay({ phase, currentStage, unlockedCount, progress, 
         <>
           {/* Top bar */}
           <motion.div
-            className="absolute top-0 left-0 right-0 flex items-center justify-between px-5 md:px-10 py-4"
+            className="absolute top-0 left-0 right-0 flex flex-col gap-3 px-4 py-3 md:flex-row md:items-center md:justify-between md:px-10 md:py-4"
             style={{ background: 'linear-gradient(to bottom, rgba(6,13,26,0.85) 0%, transparent 100%)' }}
             initial={{ y: -40, opacity: 0 }}
             animate={{ y: 0, opacity: 1 }}
             transition={{ duration: 0.8 }}
           >
             {/* Brand */}
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-3 flex-wrap">
               <div className="w-2 h-2 rounded-full animate-pulse" style={{ backgroundColor: NS_LIME, boxShadow: `0 0 8px ${NS_LIME}` }} />
               <span className="text-sm font-bold tracking-widest uppercase" style={{ color: NS_CYAN }}>NexaSoul</span>
               <span className="hidden md:inline text-xs text-white/30 tracking-wider">Learning Simulation</span>
             </div>
 
             <motion.div
-              className="pointer-events-none z-50"
+              className="pointer-events-none z-50 self-start md:self-auto"
               initial={{ opacity: 0, x: -20 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ duration: 0.8, delay: 0.4 }}
             >
               <div
-                className="flex items-center gap-2 rounded-full px-3 py-1.5"
+                className="flex items-center gap-2 rounded-full px-3 py-1.5 w-fit"
                 style={{
                   background: 'rgba(6,13,26,0.85)',
                   border: `1px solid ${NS_LIME}30`,
@@ -150,7 +150,7 @@ export default function Overlay({ phase, currentStage, unlockedCount, progress, 
             </motion.div>
 
             {/* Progress + XP */}
-            <div className="flex items-center gap-4">
+            <div className="flex flex-wrap items-center gap-3 md:gap-4">
               {/* XP */}
               <div className="hidden md:flex items-center gap-2">
                 <span className="text-[10px] font-bold tracking-widest uppercase" style={{ color: NS_LIME }}>XP</span>
@@ -307,7 +307,7 @@ export default function Overlay({ phase, currentStage, unlockedCount, progress, 
 
           {/* Parent flow — right side */}
           <motion.div
-            className="absolute top-1/2 -translate-y-1/2 right-5 md:right-10 hidden lg:block"
+            className="absolute top-1/2 -translate-y-1/2 right-4 md:right-10 hidden md:block lg:block"
             initial={{ opacity: 0, x: 24 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.8, delay: 0.3 }}
@@ -347,7 +347,7 @@ export default function Overlay({ phase, currentStage, unlockedCount, progress, 
 
           {/* Weekly bar — bottom right */}
           <motion.div
-            className="absolute bottom-6 right-5 md:bottom-10 md:right-10 hidden md:block"
+            className="absolute bottom-4 right-4 md:bottom-10 md:right-10 block"
             initial={{ opacity: 0, y: 16 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.5 }}
@@ -387,7 +387,7 @@ export default function Overlay({ phase, currentStage, unlockedCount, progress, 
 
           {/* Year progression / roadmap panel */}
           <motion.div
-            className="absolute left-1/2 top-24 -translate-x-1/2 hidden xl:block"
+            className="absolute left-1/2 top-24 -translate-x-1/2 hidden md:block xl:block"
             initial={{ opacity: 0, y: -10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.2 }}
