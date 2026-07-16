@@ -1,6 +1,6 @@
 import { motion, AnimatePresence } from 'framer-motion';
-import { useEffect, useState } from 'react';
-import { STAGES, PARENT_FLOW, WEEKLY_JOURNEY } from '../data/stages';
+import { useEffect, useMemo, useState } from 'react';
+import { STAGES, PARENT_FLOW, WEEKLY_JOURNEY, YEAR_PROGRESSIONS } from '../data/stages';
 
 // NexaSoul brand: #00C8FF (cyan) + #7EC820 (lime)
 const NS_CYAN = '#00C8FF';
@@ -14,9 +14,10 @@ interface OverlayProps {
   onJoin: () => void;
   restartCountdown: number | null;
   visitorCount: number;
+  parentMode: boolean;
 }
 
-export default function Overlay({ phase, currentStage, unlockedCount, progress, onJoin, restartCountdown, visitorCount }: OverlayProps) {
+export default function Overlay({ phase, currentStage, unlockedCount, progress, onJoin, restartCountdown, visitorCount, parentMode }: OverlayProps) {
   const [introText, setIntroText] = useState(0);
   const introTexts = ['Welcome to NexaSoul', 'Your Journey Starts Here'];
 
@@ -33,6 +34,18 @@ export default function Overlay({ phase, currentStage, unlockedCount, progress, 
   const totalXP = STAGES[currentStage]?.xp ?? 0;
   const maxXP = STAGES[STAGES.length - 1].xp;
   const xpProgress = (totalXP / maxXP) * 100;
+  const activeMission = useMemo(() => stage?.missions?.[Math.min(currentStage, stage.missions.length - 1)] ?? stage?.missions?.[0], [stage, currentStage]);
+  const parentProgress = useMemo(() => Math.min(Math.floor((unlockedCount / STAGES.length) * PARENT_FLOW.length), PARENT_FLOW.length - 1), [unlockedCount]);
+  const yearIndex = useMemo(() => Math.min(Math.floor((unlockedCount - 1) / 2), YEAR_PROGRESSIONS.length - 1), [unlockedCount]);
+  const parentSteps = useMemo(() => [
+    { label: 'Student joins', color: NS_CYAN },
+    { label: 'Learns skills', color: NS_LIME },
+    { label: 'Builds projects', color: '#44DDFF' },
+    { label: 'Works in teams', color: '#9ED840' },
+    { label: 'Wins hackathons', color: '#FF7A5A' },
+    { label: 'Builds portfolio', color: '#FFD700' },
+    { label: 'Gets internship', color: '#FFFFFF' },
+  ], []);
 
   return (
     <div className="pointer-events-none fixed inset-0 z-10 select-none">
@@ -131,6 +144,64 @@ export default function Overlay({ phase, currentStage, unlockedCount, progress, 
       {/* ── JOURNEY ────────────────────────────────────────── */}
       {phase === 'journey' && (
         <>
+          {parentMode && (
+            <motion.div
+              className="absolute inset-0 flex items-center justify-center px-6"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.8 }}
+            >
+              <div
+                className="w-full max-w-5xl rounded-[32px] border px-8 py-8 md:px-14 md:py-12"
+                style={{
+                  background: 'rgba(6,13,26,0.75)',
+                  borderColor: `${NS_CYAN}35`,
+                  boxShadow: `0 0 50px ${NS_CYAN}20`,
+                  backdropFilter: 'blur(22px)',
+                }}
+              >
+                <motion.div
+                  className="text-center text-[10px] uppercase tracking-[0.45em] mb-6"
+                  style={{ color: `${NS_LIME}90` }}
+                  initial={{ y: 10, opacity: 0 }}
+                  animate={{ y: 0, opacity: 1 }}
+                  transition={{ duration: 0.6 }}
+                >
+                  Parent Mode
+                </motion.div>
+                <div className="flex flex-col md:flex-row items-center justify-between gap-3 md:gap-4">
+                  {parentSteps.map((step, index) => (
+                    <motion.div
+                      key={step.label}
+                      className="flex flex-col items-center"
+                      initial={{ opacity: 0, y: 16 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: index * 0.1, duration: 0.5 }}
+                    >
+                      <div
+                        className="rounded-full border px-4 py-2 text-sm font-semibold"
+                        style={{
+                          color: step.color,
+                          borderColor: `${step.color}60`,
+                          backgroundColor: `${step.color}16`,
+                          boxShadow: `0 0 18px ${step.color}30`,
+                        }}
+                      >
+                        {step.label}
+                      </div>
+                      {index < parentSteps.length - 1 && (
+                        <div className="mt-2 mb-2 text-[10px] uppercase tracking-[0.45em]" style={{ color: 'rgba(255,255,255,0.25)' }}>
+                          ↓
+                        </div>
+                      )}
+                    </motion.div>
+                  ))}
+                </div>
+              </div>
+            </motion.div>
+          )}
+
           {/* Top bar */}
           <motion.div
             className="absolute top-0 left-0 right-0 flex items-center justify-between px-5 md:px-10 py-4"
@@ -209,7 +280,6 @@ export default function Overlay({ phase, currentStage, unlockedCount, progress, 
               exit={{ opacity: 0, x: -24, y: -16 }}
               transition={{ duration: 0.45 }}
             >
-              {/* Glassmorphism card */}
               <div
                 className="rounded-2xl p-4 md:p-5"
                 style={{
@@ -236,8 +306,7 @@ export default function Overlay({ phase, currentStage, unlockedCount, progress, 
                 </h2>
                 <p className="text-xs md:text-sm text-white/55 mb-3">{stage.subtitle}</p>
 
-                {/* Skill tags */}
-                <div className="flex flex-wrap gap-1.5">
+                <div className="flex flex-wrap gap-1.5 mb-3">
                   {stage.skills.map((skill) => (
                     <span
                       key={skill.name}
@@ -253,7 +322,35 @@ export default function Overlay({ phase, currentStage, unlockedCount, progress, 
                   ))}
                 </div>
 
-                {/* Stage XP mini-bar */}
+                <motion.div
+                  className="rounded-xl border p-3 mb-3"
+                  style={{ borderColor: `${stage.accent}35`, background: `${stage.accent}10` }}
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.4 }}
+                >
+                  <div className="text-[10px] uppercase tracking-[0.35em] mb-2" style={{ color: `${stage.accent}90` }}>
+                    Mission
+                  </div>
+                  <div className="rounded-lg border border-white/10 bg-black/30 p-3">
+                    <div className="text-[10px] uppercase tracking-[0.3em] text-white/35">Hologram</div>
+                    <div className="mt-2 text-sm font-semibold text-white">{activeMission?.title ?? 'Build Your Future'}</div>
+                    <div className="mt-2 grid grid-cols-2 gap-2 text-[11px]">
+                      <div>
+                        <div className="text-white/35 uppercase tracking-[0.2em]">Reward</div>
+                        <div style={{ color: stage.accent }}>{activeMission?.reward ?? '+100 XP'}</div>
+                      </div>
+                      <div>
+                        <div className="text-white/35 uppercase tracking-[0.2em]">Badge</div>
+                        <div style={{ color: NS_LIME }}>{activeMission?.badge ?? 'HTML Explorer'}</div>
+                      </div>
+                    </div>
+                    <div className="mt-2 text-[11px] text-white/50">
+                      <span className="uppercase tracking-[0.2em] text-white/35">Next</span> · {activeMission?.next ?? 'Deploy Website'}
+                    </div>
+                  </div>
+                </motion.div>
+
                 <div className="mt-3">
                   <div className="flex justify-between text-[9px] text-white/30 mb-1">
                     <span>Progress</span>
@@ -296,7 +393,7 @@ export default function Overlay({ phase, currentStage, unlockedCount, progress, 
               </div>
               <div className="flex flex-col gap-2 items-end">
                 {PARENT_FLOW.map((item, i) => {
-                  const reached = i <= Math.min(Math.floor((unlockedCount / STAGES.length) * PARENT_FLOW.length), PARENT_FLOW.length - 1);
+                  const reached = i <= parentProgress;
                   return (
                     <div key={item.label} className="flex items-center gap-2">
                       <span className={`text-xs transition-all duration-500 ${reached ? 'font-semibold text-white' : 'text-white/25'}`}>
@@ -349,6 +446,48 @@ export default function Overlay({ phase, currentStage, unlockedCount, progress, 
                       <span className={`text-[8px] ${dayActive ? 'text-white/60' : 'text-white/15'}`}>
                         {day.day.slice(0, 3)}
                       </span>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          </motion.div>
+
+          {/* Year progression / roadmap panel */}
+          <motion.div
+            className="absolute left-1/2 top-24 -translate-x-1/2 hidden xl:block"
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.2 }}
+          >
+            <div
+              className="rounded-2xl px-4 py-3"
+              style={{
+                background: 'rgba(6,13,26,0.72)',
+                border: `1px solid ${NS_CYAN}20`,
+                backdropFilter: 'blur(14px)',
+              }}
+            >
+              <div className="text-[10px] uppercase tracking-[0.35em] mb-2 text-center" style={{ color: `${NS_CYAN}70` }}>
+                Learning Roadmap
+              </div>
+              <div className="flex items-center gap-2">
+                {YEAR_PROGRESSIONS.map((year, idx) => {
+                  const active = idx <= yearIndex;
+                  return (
+                    <div key={year.year} className="flex flex-col items-center gap-1">
+                      <div
+                        className="rounded-full border px-2 py-1 text-[10px] font-semibold transition-all duration-500"
+                        style={{
+                          color: active ? year.accent : 'rgba(255,255,255,0.25)',
+                          borderColor: active ? `${year.accent}60` : 'rgba(255,255,255,0.12)',
+                          backgroundColor: active ? `${year.accent}15` : 'rgba(255,255,255,0.04)',
+                          boxShadow: active ? `0 0 10px ${year.accent}20` : 'none',
+                        }}
+                      >
+                        Year {year.year}
+                      </div>
+                      <div className="text-[9px] text-white/20">{year.title}</div>
                     </div>
                   );
                 })}

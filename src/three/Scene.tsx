@@ -115,14 +115,15 @@ export default function Scene({ currentStage, unlockedCount, onStageClick, waveT
       <CinematicCamera currentStage={currentStage} phase={phase} mouseRef={mouseRef} />
 
       {/* Lighting */}
-      <ambientLight intensity={0.35} color="#0a1a2e" />
-      <directionalLight position={[10, 20, 10]} intensity={0.5} color="#00C8FF" />
-      <pointLight position={[0, 0, 0]} intensity={1.2} color="#7EC820" distance={50} />
-      <fog attach="fog" args={['#060D1A', 30, 120]} />
+      <ambientLight intensity={0.35 + unlockedCount * 0.01} color="#0a1a2e" />
+      <directionalLight position={[10, 20, 10]} intensity={0.5 + unlockedCount * 0.02} color="#00C8FF" />
+      <pointLight position={[0, 0, 0]} intensity={1.2 + unlockedCount * 0.04} color="#7EC820" distance={50} />
+      <pointLight position={[0, 10, 0]} intensity={0.4 + unlockedCount * 0.02} color="#00E5FF" distance={80} />
+      <fog attach="fog" args={['#060D1A', 30, 140]} />
 
       {/* Background elements */}
       <StarField count={1200} />
-      <ParticleField count={600} radius={60} height={60} />
+      <ParticleField count={600} radius={60 + unlockedCount * 2} height={60 + unlockedCount * 2} />
       <GridFloor />
 
       {/* Touch ripples */}

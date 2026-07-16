@@ -17,6 +17,13 @@ export interface Skill {
   shape: 'cube' | 'crystal' | 'lightning' | 'atom' | 'repo' | 'tree' | 'serpent' | 'brain' | 'cloud';
 }
 
+export interface Mission {
+  title: string;
+  reward: string;
+  badge: string;
+  next: string;
+}
+
 export interface Stage {
   id: string;
   index: number;
@@ -28,6 +35,7 @@ export interface Stage {
   skills: Skill[];
   parentLabel: string;
   xp: number;
+  missions: Mission[];
 }
 
 export const STAGES: Stage[] = [
@@ -41,6 +49,11 @@ export const STAGES: Stage[] = [
     accent: '#33D4FF',
     parentLabel: 'Curiosity sparks',
     xp: 100,
+    missions: [
+      { title: 'Build Your First Website', reward: '+100 XP', badge: 'HTML Explorer', next: 'Deploy Website' },
+      { title: 'Learn The Basics', reward: '+75 XP', badge: 'Logic Builder', next: 'Create Your First Page' },
+      { title: 'Join Your First Club', reward: '+50 XP', badge: 'Community Spark', next: 'Find Your Crew' },
+    ],
     skills: [
       { name: 'Logic', color: '#33D4FF', shape: 'cube' },
       { name: 'Problem Solving', color: '#00C8FF', shape: 'crystal' },
@@ -57,6 +70,11 @@ export const STAGES: Stage[] = [
     accent: '#9ED840',
     parentLabel: 'Learning begins',
     xp: 250,
+    missions: [
+      { title: 'Solve Your First DSA Problem', reward: '+120 XP', badge: 'Logic Forge', next: 'Write Clean Code' },
+      { title: 'Ship A Small Script', reward: '+90 XP', badge: 'Python Pilot', next: 'Automate A Task' },
+      { title: 'Read One Open Source Repo', reward: '+80 XP', badge: 'Repo Scout', next: 'Ask Better Questions' },
+    ],
     skills: [
       { name: 'Python', color: '#9ED840', shape: 'serpent' },
       { name: 'DSA', color: '#7EC820', shape: 'tree' },
@@ -73,6 +91,11 @@ export const STAGES: Stage[] = [
     accent: '#44DDFF',
     parentLabel: 'Building skills',
     xp: 450,
+    missions: [
+      { title: 'Create A Landing Page', reward: '+140 XP', badge: 'UI Builder', next: 'Style With CSS' },
+      { title: 'Animate A Component', reward: '+110 XP', badge: 'Motion Artist', next: 'Polish Interaction' },
+      { title: 'Connect A UI To Data', reward: '+100 XP', badge: 'React Builder', next: 'Build With Purpose' },
+    ],
     skills: [
       { name: 'HTML', color: '#FF7B40', shape: 'cube' },
       { name: 'CSS', color: '#00C8FF', shape: 'crystal' },
@@ -90,6 +113,11 @@ export const STAGES: Stage[] = [
     accent: '#A8E040',
     parentLabel: 'Confidence grows',
     xp: 700,
+    missions: [
+      { title: 'Build A Clone Project', reward: '+150 XP', badge: 'Clone Architect', next: 'Recreate A Popular UI' },
+      { title: 'Ship A Personal API App', reward: '+130 XP', badge: 'API Explorer', next: 'Connect Real Data' },
+      { title: 'Publish Your Portfolio', reward: '+120 XP', badge: 'Portfolio Builder', next: 'Show Your Work' },
+    ],
     skills: [
       { name: 'UI Clone', color: '#A8E040', shape: 'cube' },
       { name: 'API App', color: '#7EC820', shape: 'atom' },
@@ -106,6 +134,11 @@ export const STAGES: Stage[] = [
     accent: '#00E5FF',
     parentLabel: 'Real building',
     xp: 1050,
+    missions: [
+      { title: 'Launch A Full Stack App', reward: '+180 XP', badge: 'System Builder', next: 'Deploy To Production' },
+      { title: 'Train A Simple AI Model', reward: '+160 XP', badge: 'AI Explorer', next: 'Measure Impact' },
+      { title: 'Deploy On The Cloud', reward: '+140 XP', badge: 'Cloud Navigator', next: 'Scale Your Build' },
+    ],
     skills: [
       { name: 'Full Stack', color: '#00E5FF', shape: 'atom' },
       { name: 'AI / ML', color: '#7EC820', shape: 'brain' },
@@ -122,6 +155,11 @@ export const STAGES: Stage[] = [
     accent: '#FF7A5A',
     parentLabel: 'Testing limits',
     xp: 1400,
+    missions: [
+      { title: 'Join A 24 Hour Build', reward: '+200 XP', badge: 'Problem Solver', next: 'Pitch Your Idea' },
+      { title: 'Lead A Team Sprint', reward: '+170 XP', badge: 'Team Captain', next: 'Coordinate Delivery' },
+      { title: 'Ship Fast Under Pressure', reward: '+150 XP', badge: 'Execution Engine', next: 'Present With Confidence' },
+    ],
     skills: [
       { name: 'Team Build', color: '#FF7A5A', shape: 'atom' },
       { name: 'Pitch', color: '#FF5E3A', shape: 'lightning' },
@@ -138,6 +176,11 @@ export const STAGES: Stage[] = [
     accent: '#B0E840',
     parentLabel: 'Giving back',
     xp: 1800,
+    missions: [
+      { title: 'Open A Pull Request', reward: '+160 XP', badge: 'Contributor', next: 'Review A Repo' },
+      { title: 'Fix A Small Bug', reward: '+140 XP', badge: 'Debugger', next: 'Write Clear Notes' },
+      { title: 'Support A Community Thread', reward: '+120 XP', badge: 'Community Builder', next: 'Help A New Learner' },
+    ],
     skills: [
       { name: 'Git', color: '#B0E840', shape: 'repo' },
       { name: 'PRs', color: '#7EC820', shape: 'cube' },
@@ -154,6 +197,11 @@ export const STAGES: Stage[] = [
     accent: '#66DDFF',
     parentLabel: 'Refining talent',
     xp: 2300,
+    missions: [
+      { title: 'Practice A Mock Interview', reward: '+180 XP', badge: 'Confidence Builder', next: 'Answer With Clarity' },
+      { title: 'Explain A System Design Flow', reward: '+170 XP', badge: 'Architect', next: 'Break Down Tradeoffs' },
+      { title: 'Refine Your Storytelling', reward: '+140 XP', badge: 'Communicator', next: 'Own Your Wins' },
+    ],
     skills: [
       { name: 'System Design', color: '#66DDFF', shape: 'tree' },
       { name: 'Communication', color: '#00C8FF', shape: 'atom' },
@@ -170,12 +218,25 @@ export const STAGES: Stage[] = [
     accent: '#FFE840',
     parentLabel: 'Goal achieved',
     xp: 3000,
+    missions: [
+      { title: 'Get Your First Internship', reward: '+220 XP', badge: 'Future Intern', next: 'Convert To Full Time' },
+      { title: 'Master Your Resume Story', reward: '+160 XP', badge: 'Career Narrator', next: 'Ace The Interview' },
+      { title: 'Lead A Real Product Sprint', reward: '+200 XP', badge: 'Industry Ready', next: 'Launch With Impact' },
+    ],
     skills: [
       { name: 'Internship', color: '#FFE840', shape: 'cube' },
       { name: 'Full-time', color: '#FFD700', shape: 'atom' },
       { name: 'Career', color: '#FFF080', shape: 'cloud' },
     ],
   },
+];
+
+export const YEAR_PROGRESSIONS = [
+  { year: 1, title: 'Foundation Valley', accent: '#00C8FF', places: ['Foundation Valley', 'Builder City', 'Hackathon Arena'] },
+  { year: 2, title: 'Full Stack City', accent: '#7EC820', places: ['Full Stack City', 'Open Source Planet', 'Cloud Systems'] },
+  { year: 3, title: 'AI Research Lab', accent: '#00E5FF', places: ['AI Research Lab', 'Real Product Factory', 'Startup Zone'] },
+  { year: 4, title: 'Leadership Tower', accent: '#FF7A5A', places: ['Leadership Tower', 'Community Headquarters', 'National Network'] },
+  { year: 5, title: 'Legacy Citadel', accent: '#FFD700', places: ['Legacy Citadel', 'Innovation Hub', 'Global Impact Portal'] },
 ];
 
 export const WEEKLY_JOURNEY = [

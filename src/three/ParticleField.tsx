@@ -72,6 +72,12 @@ export function GridFloor() {
   });
 
   return (
-    <gridHelper ref={gridRef} args={[200, 80, '#00C8FF', '#0a1a2e']} position={[0, -8, 0]} />
+    <group>
+      <gridHelper ref={gridRef} args={[200, 80, '#00C8FF', '#0a1a2e']} position={[0, -8, 0]} />
+      <mesh position={[0, -7.7, 0]} rotation={[-Math.PI / 2, 0, 0]}>
+        <ringGeometry args={[8, 18, 48]} />
+        <meshBasicMaterial color="#7EC820" transparent opacity={0.18} side={THREE.DoubleSide} />
+      </mesh>
+    </group>
   );
 }
