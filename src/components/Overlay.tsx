@@ -1,5 +1,5 @@
 import { motion, AnimatePresence } from 'framer-motion';
-import { useEffect, useMemo, useState } from 'react';
+import { useMemo } from 'react';
 import { STAGES, PARENT_FLOW, WEEKLY_JOURNEY, YEAR_PROGRESSIONS } from '../data/stages';
 
 // NexaSoul brand: #00C8FF (cyan) + #7EC820 (lime)
@@ -7,27 +7,23 @@ const NS_CYAN = '#00C8FF';
 const NS_LIME = '#7EC820';
 
 interface OverlayProps {
-  phase: 'intro' | 'journey' | 'finale';
+  phase: 'journey' | 'finale' | 'intro';
   currentStage: number;
   unlockedCount: number;
   progress: number;
   onJoin: () => void;
   restartCountdown: number | null;
   visitorCount: number;
+  isAutoPlay: boolean;
+  onStageClick: (index: number) => void;
+  playerXP: number;
+  onSkillTreeOpen: () => void;
+  onMentorOpen: () => void;
+  onCityOpen: () => void;
+  onParentModeOpen: () => void;
 }
 
-export default function Overlay({ phase, currentStage, unlockedCount, progress, onJoin, restartCountdown, visitorCount }: OverlayProps) {
-  const [introText, setIntroText] = useState(0);
-  const introTexts = ['Welcome to NexaSoul', 'Your Journey Starts Here'];
-
-  useEffect(() => {
-    if (phase !== 'intro') {
-      setIntroText(0);
-      return;
-    }
-    const t = setTimeout(() => setIntroText(1), 2200);
-    return () => clearTimeout(t);
-  }, [phase]);
+export default function Overlay({ phase, currentStage, unlockedCount, progress, onJoin, restartCountdown, visitorCount, isAutoPlay, onStageClick, playerXP, onSkillTreeOpen, onMentorOpen, onCityOpen, onParentModeOpen }: OverlayProps) {
 
   const stage = STAGES[currentStage];
   const totalXP = STAGES[currentStage]?.xp ?? 0;
@@ -40,7 +36,7 @@ export default function Overlay({ phase, currentStage, unlockedCount, progress, 
   return (
     <div className="pointer-events-none fixed inset-0 z-10 select-none">
 
-      {/* ── INTRO ──────────────────────────────────────────── */}
+      {/* ── INTRO (LEGACY) ─────────────────────────────────────── */}
       <AnimatePresence>
         {phase === 'intro' && (
           <motion.div
@@ -73,20 +69,6 @@ export default function Overlay({ phase, currentStage, unlockedCount, progress, 
                 Code • Connect • Conquer
               </div>
             </motion.div>
-
-            <AnimatePresence mode="wait">
-              <motion.p
-                key={introText}
-                className="mt-8 text-lg md:text-2xl font-light tracking-wide"
-                style={{ color: `${NS_LIME}CC` }}
-                initial={{ opacity: 0, y: 12 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -12 }}
-                transition={{ duration: 0.8 }}
-              >
-                {introTexts[introText]}
-              </motion.p>
-            </AnimatePresence>
 
             {/* Pulsing ring */}
             <motion.div
@@ -150,22 +132,101 @@ export default function Overlay({ phase, currentStage, unlockedCount, progress, 
             </motion.div>
 
             {/* Progress + XP */}
-            <div className="flex flex-wrap items-center gap-3 md:gap-4">
-              {/* XP */}
-              <div className="hidden md:flex items-center gap-2">
+            <div className="flex flex-wrap items-center gap-3 md:gap-4 pointer-events-auto">
+              {/* Parent Mode Button */}
+              <motion.button
+                onClick={onParentModeOpen}
+                className="flex items-center gap-2 px-3 py-1 rounded-full transition-all hover:scale-105"
+                style={{ backgroundColor: `rgba(255,255,255,0.15)`, border: `1px solid rgba(255,255,255,0.3)` }}
+                whileHover={{ backgroundColor: `rgba(255,255,255,0.25)` }}
+                whileTap={{ scale: 0.95 }}
+              >
+                <span className="text-[10px] font-bold tracking-widest uppercase text-white">PARENT</span>
+              </motion.button>
+
+              {/* City Button */}
+              <motion.button
+                onClick={onCityOpen}
+                className="flex items-center gap-2 px-3 py-1 rounded-full transition-all hover:scale-105"
+                style={{ backgroundColor: `rgba(255,94,58,0.15)`, border: `1px solid rgba(255,94,58,0.3)` }}
+                whileHover={{ backgroundColor: `rgba(255,94,58,0.25)` }}
+                whileTap={{ scale: 0.95 }}
+              >
+                <span className="text-[10px] font-bold tracking-widest uppercase" style={{ color: '#FF5E3A' }}>CITY</span>
+              </motion.button>
+
+              {/* Mentor Button */}
+              <motion.button
+                onClick={onMentorOpen}
+                className="flex items-center gap-2 px-3 py-1 rounded-full transition-all hover:scale-105"
+                style={{ backgroundColor: `${NS_LIME}15`, border: `1px solid ${NS_LIME}30` }}
+                whileHover={{ backgroundColor: `${NS_LIME}25` }}
+                whileTap={{ scale: 0.95 }}
+              >
+                <span className="text-[10px] font-bold tracking-widest uppercase" style={{ color: NS_LIME }}>MENTOR</span>
+              </motion.button>
+
+              {/* Skill Tree Button */}
+              <motion.button
+                onClick={onSkillTreeOpen}
+                className="flex items-center gap-2 px-3 py-1 rounded-full transition-all hover:scale-105"
+                style={{ backgroundColor: `${NS_CYAN}15`, border: `1px solid ${NS_CYAN}30` }}
+                whileHover={{ backgroundColor: `${NS_CYAN}25` }}
+                whileTap={{ scale: 0.95 }}
+              >
+                <span className="text-[10px] font-bold tracking-widest uppercase" style={{ color: NS_CYAN }}>SKILL TREE</span>
+              </motion.button>
+
+              {/* Player XP */}
+              <div className="flex items-center gap-2 px-3 py-1 rounded-full" style={{ backgroundColor: `${NS_LIME}15`, border: `1px solid ${NS_LIME}30` }}>
                 <span className="text-[10px] font-bold tracking-widest uppercase" style={{ color: NS_LIME }}>XP</span>
+                <motion.span
+                  className="text-sm font-mono font-bold"
+                  style={{ color: NS_LIME }}
+                  key={playerXP}
+                  initial={{ scale: 1.2 }}
+                  animate={{ scale: 1 }}
+                >
+                  {playerXP}
+                </motion.span>
+              </div>
+
+              {/* Auto-play indicator */}
+              {isAutoPlay && (
+                <motion.div
+                  className="flex items-center gap-2 px-3 py-1 rounded-full"
+                  style={{
+                    background: `${NS_CYAN}20`,
+                    border: `1px solid ${NS_CYAN}40`,
+                  }}
+                  initial={{ opacity: 0, scale: 0.8 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                >
+                  <motion.div
+                    className="w-2 h-2 rounded-full"
+                    style={{ backgroundColor: NS_CYAN }}
+                    animate={{ scale: [1, 1.2, 1], opacity: [1, 0.5, 1] }}
+                    transition={{ duration: 1, repeat: Infinity }}
+                  />
+                  <span className="text-[10px] font-semibold" style={{ color: NS_CYAN }}>AUTO-PLAY</span>
+                </motion.div>
+              )}
+
+              {/* Stage XP */}
+              <div className="hidden md:flex items-center gap-2">
+                <span className="text-[10px] font-bold tracking-widest uppercase" style={{ color: NS_CYAN }}>STAGE</span>
                 <div className="w-20 h-1.5 rounded-full overflow-hidden" style={{ backgroundColor: 'rgba(255,255,255,0.08)' }}>
                   <motion.div
                     className="h-full rounded-full"
                     style={{
                       width: `${xpProgress}%`,
-                      background: `linear-gradient(90deg, ${NS_LIME}, #CCFF44)`,
-                      boxShadow: `0 0 6px ${NS_LIME}`,
+                      background: `linear-gradient(90deg, ${NS_CYAN}, ${NS_LIME})`,
+                      boxShadow: `0 0 6px ${NS_CYAN}`,
                     }}
                     transition={{ duration: 0.6 }}
                   />
                 </div>
-                <span className="text-[10px] font-mono" style={{ color: NS_LIME }}>{totalXP}</span>
+                <span className="text-[10px] font-mono" style={{ color: NS_CYAN }}>{totalXP}</span>
               </div>
 
               {/* Stage progress */}
@@ -175,12 +236,13 @@ export default function Overlay({ phase, currentStage, unlockedCount, progress, 
                   {STAGES.map((_, i) => (
                     <div
                       key={i}
-                      className="w-1.5 h-1.5 rounded-full transition-all duration-500"
+                      className="w-1.5 h-1.5 rounded-full transition-all duration-500 cursor-pointer hover:scale-125"
                       style={{
                         backgroundColor: i < unlockedCount ? (i % 2 === 0 ? NS_CYAN : NS_LIME) : 'rgba(255,255,255,0.1)',
                         boxShadow: i === currentStage ? `0 0 6px ${NS_CYAN}` : 'none',
                         transform: i === currentStage ? 'scale(1.5)' : 'scale(1)',
                       }}
+                      onClick={() => i < unlockedCount && onStageClick(i)}
                     />
                   ))}
                 </div>

@@ -15,8 +15,9 @@ export interface SceneProps {
   unlockedCount: number;
   onStageClick: (index: number) => void;
   waveTrigger: number;
-  phase: 'intro' | 'journey' | 'finale';
+  phase: 'intro' | 'pathSelection' | 'avatarCustomization' | 'journey' | 'finale';
   tapRef: React.MutableRefObject<TapData | null>;
+  avatarColor: string;
 }
 
 const STAGE_SPACING = 6;
@@ -34,7 +35,7 @@ function CinematicCamera({
   mouseRef,
 }: {
   currentStage: number;
-  phase: 'intro' | 'journey' | 'finale';
+  phase: 'intro' | 'pathSelection' | 'avatarCustomization' | 'journey' | 'finale';
   mouseRef: React.MutableRefObject<{ x: number; y: number }>;
 }) {
   const { camera } = useThree();
@@ -89,7 +90,7 @@ function CinematicCamera({
   return null;
 }
 
-export default function Scene({ currentStage, unlockedCount, onStageClick, waveTrigger, phase, tapRef }: SceneProps) {
+export default function Scene({ currentStage, unlockedCount, onStageClick, waveTrigger, phase, tapRef, avatarColor }: SceneProps) {
   const mouseRef = useRef({ x: 0, y: 0 });
 
   useEffect(() => {

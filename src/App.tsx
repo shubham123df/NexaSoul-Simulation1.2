@@ -3,6 +3,15 @@ import { Canvas } from '@react-three/fiber';
 import { EffectComposer, Bloom, Vignette } from '@react-three/postprocessing';
 import Scene from './three/Scene';
 import Overlay from './components/Overlay';
+import StageDetailModal from './components/StageDetailModal';
+import SkillTree from './components/SkillTree';
+import MentorDialog from './components/MentorDialog';
+import AchievementPopup from './components/AchievementPopup';
+import InteractiveCity from './components/InteractiveCity';
+import AchievementGallery from './components/AchievementGallery';
+import Inventory from './components/Inventory';
+import ParentMode from './components/ParentMode';
+import DailyChallenges from './components/DailyChallenges';
 import { STAGES } from './data/stages';
 import type { TapData } from './three/TouchRipple';
 
@@ -12,10 +21,9 @@ const NS_LIME = '#7EC820';
 
 type Phase = 'intro' | 'journey' | 'finale';
 
-const STAGE_DURATION = 5500;
 const INTRO_DURATION = 5000;
 const FINALE_HOLD = 5000;    // ms before countdown starts
-const RESTART_COUNTDOWN = 25; // seconds
+const RESTART_COUNTDOWN = 15; // seconds
 
 export default function App() {
   const [phase, setPhase] = useState<Phase>('intro');
@@ -25,11 +33,52 @@ export default function App() {
   const [progress, setProgress] = useState(0);
   const [showQR, setShowQR] = useState(false);
   const [restartCountdown, setRestartCountdown] = useState<number | null>(null);
-  const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const countdownRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const tapRef = useRef<TapData | null>(null);
   const [visitorCount, setVisitorCount] = useState(0);
   const [displayCount, setDisplayCount] = useState(0);
+  
+  // Auto-play and inactivity tracking
+  const [isAutoPlay, setIsAutoPlay] = useState(false);
+  const [lastInteraction, setLastInteraction] = useState(Date.now());
+  const inactivityTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const autoPlayTimerRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const INACTIVITY_THRESHOLD = 4000; // 4 seconds of inactivity before auto-play
+  const AUTO_PLAY_STAGE_DURATION = 8000; // 8 seconds per stage during auto-play
+
+  // RPG Game Systems
+  const [playerXP, setPlayerXP] = useState(0);
+  const [avatarColor, setAvatarColor] = useState('#00C8FF');
+
+  // Stage detail modal
+  const [showStageModal, setShowStageModal] = useState(false);
+  const [modalStageIndex, setModalStageIndex] = useState(0);
+
+  // Skill tree modal
+  const [showSkillTree, setShowSkillTree] = useState(false);
+
+  // Mentor dialog
+  const [showMentor, setShowMentor] = useState(false);
+  const [currentMentor, setCurrentMentor] = useState<string | null>(null);
+
+  // Achievement popup
+  const [showAchievement, setShowAchievement] = useState(false);
+  const [currentAchievement, setCurrentAchievement] = useState<any>(null);
+
+  // Interactive city
+  const [showCity, setShowCity] = useState(false);
+
+  // Achievement gallery
+  const [showAchievementGallery, setShowAchievementGallery] = useState(false);
+
+  // Inventory
+  const [showInventory, setShowInventory] = useState(false);
+
+  // Parent mode
+  const [showParentMode, setShowParentMode] = useState(false);
+
+  // Daily challenges
+  const [showDailyChallenges, setShowDailyChallenges] = useState(false);
 
   // Simulated live visitor counter
   useEffect(() => {
@@ -48,6 +97,84 @@ export default function App() {
     return () => clearTimeout(t);
   }, [displayCount, visitorCount]);
 
+  // Track user interactions to reset inactivity timer
+  const handleUserInteraction = useCallback(() => {
+    setLastInteraction(Date.now());
+    if (isAutoPlay) {
+      setIsAutoPlay(false);
+      if (autoPlayTimerRef.current) {
+        clearInterval(autoPlayTimerRef.current);
+        autoPlayTimerRef.current = null;
+      }
+    }
+  }, [isAutoPlay]);
+
+  // Set up event listeners for user interaction
+  useEffect(() => {
+    const events = ['click', 'mousedown', 'keydown', 'scroll', 'touchstart', 'pointerdown'];
+    
+    const handler = () => handleUserInteraction();
+    
+    events.forEach(event => {
+      window.addEventListener(event, handler, { passive: true });
+    });
+    
+    return () => {
+      events.forEach(event => {
+        window.removeEventListener(event, handler);
+      });
+    };
+  }, [handleUserInteraction]);
+
+  // Inactivity detection - start auto-play after 6 seconds of no interaction
+  useEffect(() => {
+    if (phase !== 'journey') return;
+
+    const checkInactivity = () => {
+      const now = Date.now();
+      const timeSinceLastInteraction = now - lastInteraction;
+
+      if (timeSinceLastInteraction >= INACTIVITY_THRESHOLD && !isAutoPlay) {
+        setIsAutoPlay(true);
+      }
+    };
+
+    inactivityTimerRef.current = setInterval(checkInactivity, 1000);
+
+    return () => {
+      if (inactivityTimerRef.current) {
+        clearInterval(inactivityTimerRef.current);
+      }
+    };
+  }, [phase, lastInteraction, isAutoPlay]);
+
+  // Auto-play logic - advance stages automatically
+  useEffect(() => {
+    if (!isAutoPlay || phase !== 'journey') return;
+
+    autoPlayTimerRef.current = setInterval(() => {
+      setCurrentStage((prev) => {
+        const next = prev + 1;
+        if (next >= STAGES.length) {
+          setIsAutoPlay(false);
+          setPhase('finale');
+          setProgress(100);
+          return prev;
+        }
+        setUnlockedCount(next + 1);
+        setWaveTrigger(next);
+        setProgress((next / (STAGES.length - 1)) * 100);
+        return next;
+      });
+    }, AUTO_PLAY_STAGE_DURATION);
+
+    return () => {
+      if (autoPlayTimerRef.current) {
+        clearInterval(autoPlayTimerRef.current);
+      }
+    };
+  }, [isAutoPlay, phase]);
+
   // Handle taps/clicks on the canvas for touch-reactive ripple + orb glow
   const handleCanvasTap = useCallback((e: React.PointerEvent) => {
     const x = (e.clientX / window.innerWidth) * 2 - 1;
@@ -57,19 +184,26 @@ export default function App() {
 
   const doRestart = useCallback(() => {
     setShowQR(false);
-    setPhase('intro');
+    setPhase('journey');
     setCurrentStage(0);
     setUnlockedCount(1);
     setWaveTrigger(-1);
     setProgress(0);
     setRestartCountdown(null);
+    setIsAutoPlay(false);
+    setLastInteraction(Date.now());
+    setPlayerXP(0);
+    setAvatarColor('#00C8FF');
     if (countdownRef.current) clearInterval(countdownRef.current);
+    if (autoPlayTimerRef.current) clearInterval(autoPlayTimerRef.current);
+    if (inactivityTimerRef.current) clearInterval(inactivityTimerRef.current);
   }, []);
 
   const advanceStage = useCallback(() => {
     setCurrentStage((prev) => {
       const next = prev + 1;
       if (next >= STAGES.length) {
+        setIsAutoPlay(false);
         setPhase('finale');
         setProgress(100);
         return prev;
@@ -81,16 +215,6 @@ export default function App() {
     });
   }, []);
 
-  // Auto-advance during journey
-  useEffect(() => {
-    if (phase !== 'journey') return;
-    timerRef.current = setTimeout(advanceStage, STAGE_DURATION);
-    return () => { if (timerRef.current) clearTimeout(timerRef.current); };
-  }, [phase, currentStage, advanceStage]);
-
-  useEffect(() => {
-    if (phase !== 'journey') return;
-  }, [phase]);
 
   // Transition intro → journey
   useEffect(() => {
@@ -124,6 +248,10 @@ export default function App() {
     if (index >= unlockedCount) return;
     setCurrentStage(index);
     setProgress((index / (STAGES.length - 1)) * 100);
+    setModalStageIndex(index);
+    setShowStageModal(true);
+    // Award XP for exploring stages
+    setPlayerXP(prev => prev + 20);
   }, [unlockedCount]);
 
   return (
@@ -142,6 +270,7 @@ export default function App() {
           waveTrigger={waveTrigger}
           phase={phase}
           tapRef={tapRef}
+          avatarColor={avatarColor}
         />
         <EffectComposer>
           <Bloom intensity={1.0} luminanceThreshold={0.18} luminanceSmoothing={0.85} mipmapBlur />
@@ -157,6 +286,80 @@ export default function App() {
         onJoin={() => setShowQR(true)}
         restartCountdown={restartCountdown}
         visitorCount={displayCount}
+        isAutoPlay={isAutoPlay}
+        onStageClick={handleStageClick}
+        playerXP={playerXP}
+        onSkillTreeOpen={() => setShowSkillTree(true)}
+        onMentorOpen={() => {
+          setCurrentMentor('html'); // Default to HTML mentor
+          setShowMentor(true);
+        }}
+        onCityOpen={() => setShowCity(true)}
+        onParentModeOpen={() => setShowParentMode(true)}
+      />
+
+      {/* Stage Detail Modal */}
+      <StageDetailModal
+        stage={STAGES[modalStageIndex]}
+        isOpen={showStageModal}
+        onClose={() => setShowStageModal(false)}
+      />
+
+      {/* Skill Tree Modal */}
+      {showSkillTree && (
+        <SkillTree
+          unlockedCount={unlockedCount}
+          currentStage={currentStage}
+          onNodeClick={handleStageClick}
+          onClose={() => setShowSkillTree(false)}
+        />
+      )}
+
+      {/* Mentor Dialog */}
+      <MentorDialog
+        mentorId={currentMentor}
+        isOpen={showMentor}
+        onClose={() => setShowMentor(false)}
+      />
+
+      {/* Achievement Popup */}
+      <AchievementPopup
+        achievement={currentAchievement}
+        isOpen={showAchievement}
+        onClose={() => setShowAchievement(false)}
+      />
+
+      {/* Interactive City */}
+      <InteractiveCity
+        isOpen={showCity}
+        onClose={() => setShowCity(false)}
+      />
+
+      {/* Achievement Gallery */}
+      <AchievementGallery
+        isOpen={showAchievementGallery}
+        onClose={() => setShowAchievementGallery(false)}
+      />
+
+      {/* Inventory */}
+      <Inventory
+        isOpen={showInventory}
+        onClose={() => setShowInventory(false)}
+      />
+
+      {/* Parent Mode */}
+      <ParentMode
+        isOpen={showParentMode}
+        onClose={() => setShowParentMode(false)}
+        unlockedCount={unlockedCount}
+        currentStage={currentStage}
+        playerXP={playerXP}
+      />
+
+      {/* Daily Challenges */}
+      <DailyChallenges
+        isOpen={showDailyChallenges}
+        onClose={() => setShowDailyChallenges(false)}
       />
 
       {/* QR Code modal */}
